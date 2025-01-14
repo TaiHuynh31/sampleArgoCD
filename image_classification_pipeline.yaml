@@ -1,0 +1,203 @@
+# PIPELINE DEFINITION
+# Name: ai-training-pipeline
+# Description: A pipeline to preprocess data, train a model, and evaluate it.
+components:
+  comp-evaluate-op:
+    executorLabel: exec-evaluate-op
+    inputDefinitions:
+      artifacts:
+        dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+  comp-preprocess-op:
+    executorLabel: exec-preprocess-op
+    outputDefinitions:
+      artifacts:
+        output_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-train-op:
+    executorLabel: exec-train-op
+    inputDefinitions:
+      artifacts:
+        dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        output_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-evaluate-op:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - evaluate_op
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'tensorflow'\
+          \ 'numpy' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef evaluate_op(dataset: Input[Dataset], model: Input[Model]):\n\
+          \    import tensorflow as tf\n    import numpy as np\n    import os\n\n\
+          \    # Load preprocessed test data\n    x_test = np.load(os.path.join(dataset.path,\
+          \ 'x_test.npy'))\n    y_test = np.load(os.path.join(dataset.path, 'y_test.npy'))\n\
+          \n    # Load the trained model\n    model = tf.keras.models.load_model(os.path.join(model.path,\
+          \ 'resnet_model.h5'))\n\n    # Evaluate the model\n    loss, accuracy =\
+          \ model.evaluate(x_test, y_test)\n    print(f\"Test Loss: {loss}\")\n  \
+          \  print(f\"Test Accuracy: {accuracy}\")\n\n"
+        image: python:3.9
+    exec-preprocess-op:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - preprocess_op
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'tensorflow'\
+          \ 'numpy' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef preprocess_op(output_dataset: Output[Dataset]):\n    import tensorflow\
+          \ as tf\n    import numpy as np\n    import os\n\n    # Load and preprocess\
+          \ CIFAR-10 dataset\n    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()\n\
+          \    x_train, x_test = x_train / 255.0, x_test / 255.0\n\n    #create a\
+          \ dataset dir to store the preprocessed data\n    os.makedirs(output_dataset.path,\
+          \ exist_ok=True)\n\n    # Store the preprocessed data\n    np.save(os.path.join(output_dataset.path,\
+          \ 'x_train.npy'), x_train)\n    np.save(os.path.join(output_dataset.path,\
+          \ 'y_train.npy'), y_train)\n    np.save(os.path.join(output_dataset.path,\
+          \ 'x_test.npy'), x_test)\n    np.save(os.path.join(output_dataset.path,\
+          \ 'y_test.npy'), y_test)\n\n"
+        image: python:3.9
+    exec-train-op:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_op
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'tensorflow'\
+          \ 'numpy' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_op(dataset: Input[Dataset], output_model: Output[Model]):\n\
+          \    import tensorflow as tf\n    import numpy as np\n    import os\n\n\
+          \    # Load preprocessed data\n    x_train = np.load(f'{dataset.path}/x_train.npy')\n\
+          \    y_train = np.load(f'{dataset.path}/y_train.npy')\n\n    # Define and\
+          \ compile the model\n    model = tf.keras.applications.ResNet50(weights=None,\
+          \ input_shape=(32, 32, 3), classes=10)\n    model.compile(optimizer='adam',\
+          \ loss='sparse_categorical_crossentropy', metrics=['accuracy'])\n\n    #\
+          \ Train the model\n    model.fit(x_train, y_train, epochs=10)\n\n    # Create\
+          \ directory for saving the model\n    os.makedirs(output_model.path, exist_ok=True)\n\
+          \n    # Save the trained model\n    model.save(os.path.join(output_model.path,\
+          \ 'resnet_model.h5'))\n\n"
+        image: python:3.9
+pipelineInfo:
+  description: A pipeline to preprocess data, train a model, and evaluate it.
+  name: ai-training-pipeline
+root:
+  dag:
+    tasks:
+      evaluate-op:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-op
+        dependentTasks:
+        - preprocess-op
+        - train-op
+        inputs:
+          artifacts:
+            dataset:
+              taskOutputArtifact:
+                outputArtifactKey: output_dataset
+                producerTask: preprocess-op
+            model:
+              taskOutputArtifact:
+                outputArtifactKey: output_model
+                producerTask: train-op
+        taskInfo:
+          name: evaluate-op
+      preprocess-op:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-preprocess-op
+        taskInfo:
+          name: preprocess-op
+      train-op:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-op
+        dependentTasks:
+        - preprocess-op
+        inputs:
+          artifacts:
+            dataset:
+              taskOutputArtifact:
+                outputArtifactKey: output_dataset
+                producerTask: preprocess-op
+        taskInfo:
+          name: train-op
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.11.0
