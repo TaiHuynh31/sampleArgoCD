@@ -1,0 +1,52 @@
+# Byte-compiled files
+*.py[cod]
+__pycache__/
+*.so
+
+# Virtual environment
+venv/
+env/
+
+# PyCharm files
+.idea/
+
+# Logs
+*.log
+*.out
+*.err
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Compiled C extensions
+*.dll
+*.pyd
+*.dylib
+
+# Unit test / coverage reports
+htmlcov/
+*.cover
+.coverage
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# Data generated during execution
+*.db
+*.sqlite3
+*.h5
+*.csv
+*.npy
+
+# Generated Python artifacts
+*.egg-info/
+dist/
+build/
+.eggs/
