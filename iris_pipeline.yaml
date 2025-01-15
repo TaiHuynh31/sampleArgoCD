@@ -1,6 +1,6 @@
 # PIPELINE DEFINITION
-# Name: ai-training-pipeline
-# Description: A pipeline to preprocess data, train a model, and evaluate it.
+# Name: iris-training-pipeline
+# Description: A pipeline to preprocess the Iris dataset, train a model, and evaluate it.
 components:
   comp-evaluate-op:
     executorLabel: exec-evaluate-op
@@ -53,7 +53,7 @@ deploymentSpec:
           \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
           \  python3 -m pip install --quiet --no-warn-script-location 'tensorflow'\
-          \ 'numpy' && \"$0\" \"$@\"\n"
+          \ 'numpy' 'scikit-learn' && \"$0\" \"$@\"\n"
         - sh
         - -ec
         - 'program_path=$(mktemp -d)
@@ -66,13 +66,25 @@ deploymentSpec:
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
           \ *\n\ndef evaluate_op(dataset: Input[Dataset], model: Input[Model]):\n\
-          \    import tensorflow as tf\n    import numpy as np\n    import os\n\n\
-          \    # Load preprocessed test data\n    x_test = np.load(os.path.join(dataset.path,\
-          \ 'x_test.npy'))\n    y_test = np.load(os.path.join(dataset.path, 'y_test.npy'))\n\
-          \n    # Load the trained model\n    model = tf.keras.models.load_model(os.path.join(model.path,\
-          \ 'resnet_model.h5'))\n\n    # Evaluate the model\n    loss, accuracy =\
-          \ model.evaluate(x_test, y_test)\n    print(f\"Test Loss: {loss}\")\n  \
-          \  print(f\"Test Accuracy: {accuracy}\")\n\n"
+          \    import tensorflow as tf\n    import numpy as np\n    from sklearn.metrics\
+          \ import accuracy_score, precision_score, recall_score, f1_score\n    import\
+          \ json\n    import os\n    # Load test data\n    X_test = np.load(os.path.join(dataset.path,\
+          \ 'X_test.npy'))\n    y_test = np.load(os.path.join(dataset.path, 'y_test.npy'))\n\
+          \n    # Load the trained model\n    loaded_model = tf.keras.models.load_model(os.path.join(model.path,\
+          \ 'iris_model.h5'))\n\n    # Make predictions\n    y_pred = loaded_model.predict(X_test)\n\
+          \    y_pred_classes = np.argmax(y_pred, axis=1)  # Convert probabilities\
+          \ to class labels\n\n    # Compute evaluation metrics\n    accuracy = accuracy_score(y_test,\
+          \ y_pred_classes)\n    precision = precision_score(y_test, y_pred_classes,\
+          \ average='weighted')\n    recall = recall_score(y_test, y_pred_classes,\
+          \ average='weighted')\n    f1 = f1_score(y_test, y_pred_classes, average='weighted')\n\
+          \n    # Print metrics to the console\n    print(\"Evaluation Metrics:\"\
+          )\n    print(f\"Accuracy: {accuracy:.4f}\")\n    print(f\"Precision: {precision:.4f}\"\
+          )\n    print(f\"Recall: {recall:.4f}\")\n    print(f\"F1-Score: {f1:.4f}\"\
+          )\n\n    # Save metrics to a JSON file (optional)\n    metrics = {\n   \
+          \     'accuracy': accuracy,\n        'precision': precision,\n        'recall':\
+          \ recall,\n        'f1_score': f1\n    }\n    os.makedirs(model.path, exist_ok=True)\n\
+          \    with open(os.path.join(model.path, 'metrics.json'), 'w') as f:\n  \
+          \      json.dump(metrics, f)\n\n"
         image: python:3.9
     exec-preprocess-op:
       container:
@@ -88,7 +100,7 @@ deploymentSpec:
           \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
           \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.11.0'\
           \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
-          \  python3 -m pip install --quiet --no-warn-script-location 'tensorflow'\
+          \  python3 -m pip install --quiet --no-warn-script-location 'scikit-learn'\
           \ 'numpy' && \"$0\" \"$@\"\n"
         - sh
         - -ec
@@ -101,15 +113,17 @@ deploymentSpec:
 
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
-          \ *\n\ndef preprocess_op(output_dataset: Output[Dataset]):\n    import tensorflow\
-          \ as tf\n    import numpy as np\n    import os\n\n    # Load and preprocess\
-          \ CIFAR-10 dataset\n    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()\n\
-          \    x_train, x_test = x_train / 255.0, x_test / 255.0\n\n    #create a\
-          \ dataset dir to store the preprocessed data\n    os.makedirs(output_dataset.path,\
-          \ exist_ok=True)\n\n    # Store the preprocessed data\n    np.save(os.path.join(output_dataset.path,\
-          \ 'x_train.npy'), x_train)\n    np.save(os.path.join(output_dataset.path,\
+          \ *\n\ndef preprocess_op(output_dataset: Output[Dataset]):\n    from sklearn.datasets\
+          \ import load_iris\n    from sklearn.model_selection import train_test_split\n\
+          \    import numpy as np\n    import os\n    # Load Iris dataset\n    iris\
+          \ = load_iris()\n    X, y = iris.data, iris.target\n\n    # Split into train\
+          \ and test sets\n    X_train, X_test, y_train, y_test = train_test_split(X,\
+          \ y, test_size=0.2, random_state=42)\n\n    # Create a directory to store\
+          \ the preprocessed data\n    os.makedirs(output_dataset.path, exist_ok=True)\n\
+          \n    # Save the preprocessed data\n    np.save(os.path.join(output_dataset.path,\
+          \ 'X_train.npy'), X_train)\n    np.save(os.path.join(output_dataset.path,\
           \ 'y_train.npy'), y_train)\n    np.save(os.path.join(output_dataset.path,\
-          \ 'x_test.npy'), x_test)\n    np.save(os.path.join(output_dataset.path,\
+          \ 'X_test.npy'), X_test)\n    np.save(os.path.join(output_dataset.path,\
           \ 'y_test.npy'), y_test)\n\n"
         image: python:3.9
     exec-train-op:
@@ -140,20 +154,24 @@ deploymentSpec:
           '
         - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
           \ *\n\ndef train_op(dataset: Input[Dataset], output_model: Output[Model]):\n\
-          \    import tensorflow as tf\n    import numpy as np\n    import os\n\n\
-          \    # Load preprocessed data\n    x_train = np.load(f'{dataset.path}/x_train.npy')\n\
-          \    y_train = np.load(f'{dataset.path}/y_train.npy')\n\n    # Define and\
-          \ compile the model\n    model = tf.keras.applications.ResNet50(weights=None,\
-          \ input_shape=(32, 32, 3), classes=10)\n    model.compile(optimizer='adam',\
-          \ loss='sparse_categorical_crossentropy', metrics=['accuracy'])\n\n    #\
-          \ Train the model\n    model.fit(x_train, y_train, epochs=10)\n\n    # Create\
-          \ directory for saving the model\n    os.makedirs(output_model.path, exist_ok=True)\n\
-          \n    # Save the trained model\n    model.save(os.path.join(output_model.path,\
-          \ 'resnet_model.h5'))\n\n"
+          \    import tensorflow as tf\n    import numpy as np\n    import os\n  \
+          \  # Load preprocessed data\n    X_train = np.load(os.path.join(dataset.path,\
+          \ 'X_train.npy'))\n    y_train = np.load(os.path.join(dataset.path, 'y_train.npy'))\n\
+          \n    # Define a simple neural network model\n    model = tf.keras.Sequential([\n\
+          \        tf.keras.layers.Dense(10, activation='relu', input_shape=(X_train.shape[1],)),\n\
+          \        tf.keras.layers.Dense(10, activation='relu'),\n        tf.keras.layers.Dense(3,\
+          \ activation='softmax')  # 3 classes for Iris dataset\n    ])\n\n    # Compile\
+          \ the model\n    model.compile(optimizer='adam',\n                  loss='sparse_categorical_crossentropy',\n\
+          \                  metrics=['accuracy'])\n\n    # Train the model\n    model.fit(X_train,\
+          \ y_train, epochs=10, batch_size=8)\n\n    # Create directory for saving\
+          \ the model\n    os.makedirs(output_model.path, exist_ok=True)\n\n    #\
+          \ Save the trained model\n    model.save(os.path.join(output_model.path,\
+          \ 'iris_model.h5'))\n\n"
         image: python:3.9
 pipelineInfo:
-  description: A pipeline to preprocess data, train a model, and evaluate it.
-  name: ai-training-pipeline
+  description: A pipeline to preprocess the Iris dataset, train a model, and evaluate
+    it.
+  name: iris-training-pipeline
 root:
   dag:
     tasks:

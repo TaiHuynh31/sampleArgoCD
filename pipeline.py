@@ -3,24 +3,30 @@ from kfp import dsl
 from components.preprocess import preprocess_op
 from components.train import train_op
 from components.evaluate import evaluate_op
-
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow logs
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN custom operations
 # Define the pipeline
 @dsl.pipeline(
-    name="AI Training Pipeline",
-    description="A pipeline to preprocess data, train a model, and evaluate it."
+    name="Iris Training Pipeline",
+    description="A pipeline to preprocess the Iris dataset, train a model, and evaluate it."
 )
-def image_classification_pipeline():
+def iris_pipeline():
     # Step 1: Preprocess Data
     preprocess_task = preprocess_op()
 
     # Step 2: Train Model
-    train_task = train_op(dataset = preprocess_task.output)
+    train_task = train_op(dataset=preprocess_task.outputs['output_dataset'])
 
     # Step 3: Evaluate Model
-    evaluate_task = evaluate_op(dataset = preprocess_task.output, model = train_task.output)
+    evaluate_task = evaluate_op(
+        dataset=preprocess_task.outputs['output_dataset'],
+        model=train_task.outputs['output_model']
+    )
 
 # Compile the pipeline to a YAML file
-kfp.compiler.Compiler().compile(
-    pipeline_func=image_classification_pipeline,
-    package_path="image_classification_pipeline.yaml"  # Specify YAML output
-)
+if __name__ == '__main__':
+    kfp.compiler.Compiler().compile(
+        pipeline_func=iris_pipeline,
+        package_path="iris_pipeline.yaml"
+    )

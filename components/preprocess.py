@@ -1,20 +1,24 @@
-from kfp.dsl import  component, Output, Dataset
+from kfp.dsl import component, Output, Dataset
 
-@component(base_image='python:3.9', packages_to_install=['tensorflow', 'numpy'])
+
+@component(base_image='python:3.9', packages_to_install=['scikit-learn', 'numpy'])
 def preprocess_op(output_dataset: Output[Dataset]):
-    import tensorflow as tf
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
     import numpy as np
     import os
+    # Load Iris dataset
+    iris = load_iris()
+    X, y = iris.data, iris.target
 
-    # Load and preprocess CIFAR-10 dataset
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
-    x_train, x_test = x_train / 255.0, x_test / 255.0
+    # Split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    #create a dataset dir to store the preprocessed data
+    # Create a directory to store the preprocessed data
     os.makedirs(output_dataset.path, exist_ok=True)
 
-    # Store the preprocessed data
-    np.save(os.path.join(output_dataset.path, 'x_train.npy'), x_train)
+    # Save the preprocessed data
+    np.save(os.path.join(output_dataset.path, 'X_train.npy'), X_train)
     np.save(os.path.join(output_dataset.path, 'y_train.npy'), y_train)
-    np.save(os.path.join(output_dataset.path, 'x_test.npy'), x_test)
+    np.save(os.path.join(output_dataset.path, 'X_test.npy'), X_test)
     np.save(os.path.join(output_dataset.path, 'y_test.npy'), y_test)
