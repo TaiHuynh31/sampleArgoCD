@@ -9,7 +9,7 @@ def train_op(dataset: Input[Dataset], output_model: Output[Model]):
     # Load preprocessed data
     X_train = np.load(os.path.join(dataset.path, 'X_train.npy'))
     y_train = np.load(os.path.join(dataset.path, 'y_train.npy'))
-
+    # demo something new  here
     # Define a simple neural network model
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(10, activation='relu', input_shape=(X_train.shape[1],)),
