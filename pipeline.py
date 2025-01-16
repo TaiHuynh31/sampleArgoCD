@@ -1,4 +1,4 @@
-
+import kfp
 from kfp import dsl, compiler
 from components.preprocess import preprocess_op
 from components.train import train_op
@@ -30,5 +30,14 @@ if __name__ == '__main__':
     compiler.Compiler().compile(
         pipeline_func=iris_pipeline,
         package_path=pipeline_file
+    )
+
+    print(f"Pipeline written to {pipeline_file}")
+    # run the pipeline sdk to run the pipeline
+    client = kfp.Client()
+    run = client.create_run_from_pipeline_package(
+        'pipeline/image_classification_pipeline.yaml',
+        arguments={},
+        experiment_name='image-classification-experiment'
     )
 

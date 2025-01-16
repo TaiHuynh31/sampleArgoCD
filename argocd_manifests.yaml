@@ -16,3 +16,26 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true                      # Create namespace if it does not exist
+    hooks:
+      - type: PostSync                              # Execute after syncing resources
+        job:
+          metadata:
+            name: trigger-kubeflow-pipeline
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: trigger-pipeline
+                    image: python:3.9
+                    command: [ "python3", "-c" ]
+                    args:
+                      - |
+                        import kfp
+                        client = kfp.Client() 
+                        client.create_run_from_pipeline_package(
+                            pipeline_file='/path/to/pipeline.yaml',                  
+                            arguments={}                                             
+                        )
+                restartPolicy: Never
