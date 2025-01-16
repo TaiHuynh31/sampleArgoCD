@@ -27,8 +27,26 @@ def iris_pipeline():
 if __name__ == '__main__':
     if __name__ == '__main__':
         # Compile the pipeline
-        pipeline_file = "iris_pipeline.yml"
+        pipeline_file = "iris_pipeline.yaml"
         compiler.Compiler().compile(
             pipeline_func=iris_pipeline,
             package_path=pipeline_file
         )
+
+        # Run the pipeline using Kubeflow Pipelines SDK
+        client = kfp.Client(host='http://localhost:8080')  # URL to your Kubeflow Pipelines UI
+        experiment_name = "Iris Training Experiment"
+
+        # Create or get an existing experiment
+        experiment = client.create_experiment(name=experiment_name)
+
+        # Submit a pipeline run
+        run_name = "iris_pipeline_run"
+        run_result = client.run_pipeline(
+            experiment_id=experiment.experiment_id,
+            job_name=run_name,
+            pipeline_package_path=pipeline_file,
+            params={}  # Add any parameters if required
+        )
+
+        print(f"Pipeline submitted successfully.")

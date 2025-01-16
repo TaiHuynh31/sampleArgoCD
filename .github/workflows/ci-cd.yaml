@@ -1,4 +1,4 @@
-name: CI/CD Pipeline with ArgoCD and Kubeflow
+name: CI/CD Pipeline
 
 on:
   push:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,11 +25,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install kfp
 
-      - name: Set PYTHONPATH
-        run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          echo "PYTHONPATH set to $(pwd)"
-
       - name: Compile pipeline
         run: |
+          cd pipeline
           python pipeline.py
+
+      - name: Debug files
+        run: |
+          ls -la
+          ls -la pipeline/
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "TaiHuynh31"
+          git config --global user.email "taihuynh@kubetools.ca"
+          git add .
+          git commit -m "Auto-generated pipeline YAML"
+          git push origin main
