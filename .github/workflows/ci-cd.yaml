@@ -29,10 +29,6 @@ jobs:
         run: |
           python pipeline.py
 
-      - name: Debug files
-        run: |
-          ls -la
-          ls -la pipeline/
 
       - name: Commit and push changes
         run: |
