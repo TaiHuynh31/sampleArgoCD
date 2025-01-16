@@ -18,29 +18,3 @@ spec:
       selfHeal: true                                           # Automatically sync out-of-sync resources
     syncOptions:
       - CreateNamespace=true                                   # Create namespace if not exists
-
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: trigger-kubeflow-pipeline
-  namespace: kubeflow
-  annotations:
-    argocd.argoproj.io/hook: PostSync                          # Lifecycle hook to trigger after sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded       # Delete Job after success
-spec:
-  template:
-    spec:
-      containers:
-      - name: trigger-pipeline
-        image: python:3.9
-        command: ["python3", "-c"]
-        args:
-        - |
-          import kfp
-          client = kfp.Client() 
-          client.create_run_from_pipeline_package(
-              pipeline_file='https://github.com/TaiHuynh31/sampleArgoCD/raw/main/iris_pipeline.yaml',  
-              arguments={}                                                                           
-          )
-      restartPolicy: Never
