@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with Kubeflow and ArgoCD
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build-and-sync:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,10 +28,30 @@ jobs:
           cd pipeline
           python pipeline.py
 
-      - name: Commit and push changes
+      - name: Push compiled pipeline
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add .
           git commit -m "Auto-generated pipeline YAML"
+          git push origin main
+
+  sync-results:
+    runs-on: ubuntu-latest
+    needs: build-and-sync
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sync results from Kubeflow
+        run: |
+          kubectl get pod --namespace=iris-pipeline -o jsonpath="{.items[*].status.phase}" > results.json
+
+      - name: Push results to GitHub
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add results.json
+          git commit -m "Add evaluation results"
           git push origin main
