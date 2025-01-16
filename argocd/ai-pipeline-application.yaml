@@ -7,11 +7,11 @@ spec:
   project: default
   source:
     repoURL:  https://github.com/TaiHuynh31/sampleArgoCD.git
-    path: kubernetes
+    path: "."
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
-    namespace: iris-pipeline
+    namespace: kubeflow
   syncPolicy:
     automated:
       prune: true
