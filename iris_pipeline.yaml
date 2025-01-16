@@ -166,7 +166,7 @@ deploymentSpec:
           \ y_train, epochs=10, batch_size=8)\n\n    # Create directory for saving\
           \ the model\n    os.makedirs(output_model.path, exist_ok=True)\n\n    #\
           \ Save the trained model\n    model.save(os.path.join(output_model.path,\
-          \ 'iris_model.h5'))\n    # demo somethings\n\n"
+          \ 'iris_model.h5'))\n\n"
         image: python:3.9
 pipelineInfo:
   description: A pipeline to preprocess the Iris dataset, train a model, and evaluate

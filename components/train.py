@@ -31,4 +31,3 @@ def train_op(dataset: Input[Dataset], output_model: Output[Model]):
 
     # Save the trained model
     model.save(os.path.join(output_model.path, 'iris_model.h5'))
-    # demo somethings
