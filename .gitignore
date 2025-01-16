@@ -50,4 +50,3 @@ coverage.xml
 dist/
 build/
 .eggs/
-iris_pipeline.yaml
