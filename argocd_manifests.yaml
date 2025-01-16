@@ -38,7 +38,7 @@ spec:
         args:
         - |
           import kfp
-          client = kfp.Client() 
+          client = kfp.Client("http://ml-pipeline.kubeflow.svc.cluster.local:8888/pipline") 
           client.create_run_from_pipeline_package(
               pipeline_file='https://github.com/TaiHuynh31/sampleArgoCD/blob/main/iris_pipeline.yaml',  
               arguments={}                                                                           
