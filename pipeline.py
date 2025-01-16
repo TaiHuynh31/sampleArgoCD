@@ -32,12 +32,3 @@ if __name__ == '__main__':
         package_path=pipeline_file
     )
 
-    print(f"Pipeline written to {pipeline_file}")
-    # run the pipeline sdk to run the pipeline
-    client = kfp.Client()
-    run = client.create_run_from_pipeline_package(
-        'pipeline/image_classification_pipeline.yaml',
-        arguments={},
-        experiment_name='image-classification-experiment'
-    )
-
