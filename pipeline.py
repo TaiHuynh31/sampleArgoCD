@@ -32,4 +32,3 @@ if __name__ == '__main__':
             pipeline_func=iris_pipeline,
             package_path=pipeline_file
         )
-        print(f"Pipeline written to {pipeline_file}")
