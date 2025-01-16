@@ -1,10 +1,11 @@
-import kfp
+
 from kfp import dsl, compiler
 from components.preprocess import preprocess_op
 from components.train import train_op
 from components.evaluate import evaluate_op
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
+
 # Define the pipeline
 @dsl.pipeline(
     name="Iris Training Pipeline",
@@ -25,11 +26,8 @@ def iris_pipeline():
 
 # Compile the pipeline to a YAML file
 if __name__ == '__main__':
-    if __name__ == '__main__':
-        # Compile the pipeline
-        pipeline_file = "iris_pipeline.yaml"
-        compiler.Compiler().compile(
-            pipeline_func=iris_pipeline,
-            package_path=pipeline_file
-        )
-
+    pipeline_file = "manifests/iris_pipeline.yaml"
+    compiler.Compiler().compile(
+        pipeline_func=iris_pipeline,
+        package_path=pipeline_file
+    )
