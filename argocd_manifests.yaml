@@ -38,9 +38,9 @@ spec:
         args:
         - |
           import kfp
-          client = kfp.Client(host='http://<kubeflow-endpoint>/pipeline')  # Replace with your Kubeflow endpoint
+          client = kfp.Client() 
           client.create_run_from_pipeline_package(
-              pipeline_file='https://github.com/TaiHuynh31/sampleArgoCD/blob/main/iris_pipeline.yaml',  # Replace with the pipeline file path
-              arguments={}                                                                            # Add pipeline arguments if necessary
+              pipeline_file='https://github.com/TaiHuynh31/sampleArgoCD/blob/main/iris_pipeline.yaml',  
+              arguments={}                                                                           
           )
       restartPolicy: Never
