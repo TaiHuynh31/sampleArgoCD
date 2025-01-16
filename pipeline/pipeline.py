@@ -1,8 +1,8 @@
 import kfp
 from kfp import dsl, compiler
-from components.preprocess import preprocess_op
-from components.train import train_op
-from components.evaluate import evaluate_op
+from ..components.preprocess import preprocess_op
+from ..components.train import train_op
+from ..components.evaluate import evaluate_op
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 # Define the pipeline
