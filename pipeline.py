@@ -26,7 +26,7 @@ def iris_pipeline():
 
 # Compile the pipeline to a YAML file
 if __name__ == '__main__':
-    pipeline_file = "manifests/iris_pipeline.yaml"
+    pipeline_file = "iris_pipeline.yaml"
     compiler.Compiler().compile(
         pipeline_func=iris_pipeline,
         package_path=pipeline_file
