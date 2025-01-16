@@ -3,9 +3,7 @@ from kfp import dsl
 from components.preprocess import preprocess_op
 from components.train import train_op
 from components.evaluate import evaluate_op
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TensorFlow logs
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN custom operations
+
 # Define the pipeline
 @dsl.pipeline(
     name="Iris Training Pipeline",

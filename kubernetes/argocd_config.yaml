@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/TaiHuynh31/sampleArgoCD.git"
-    path: .
+    repoURL:  https://github.com/TaiHuynh31/sampleArgoCD.git
+    path: kubernetes
     targetRevision: HEAD
   destination:
     server: https://kubernetes.default.svc
-    namespace: kubeflow
+    namespace: iris-pipeline
   syncPolicy:
     automated:
       prune: true

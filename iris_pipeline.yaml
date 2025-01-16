@@ -68,7 +68,7 @@ deploymentSpec:
           \ *\n\ndef evaluate_op(dataset: Input[Dataset], model: Input[Model]):\n\
           \    import tensorflow as tf\n    import numpy as np\n    from sklearn.metrics\
           \ import accuracy_score, precision_score, recall_score, f1_score\n    import\
-          \ json\n    import os\n    #   Load test data\n    X_test = np.load(os.path.join(dataset.path,\
+          \ json\n    import os\n    # Load test data\n    X_test = np.load(os.path.join(dataset.path,\
           \ 'X_test.npy'))\n    y_test = np.load(os.path.join(dataset.path, 'y_test.npy'))\n\
           \n    # Load the trained model\n    loaded_model = tf.keras.models.load_model(os.path.join(model.path,\
           \ 'iris_model.h5'))\n\n    # Make predictions\n    y_pred = loaded_model.predict(X_test)\n\
@@ -157,12 +157,13 @@ deploymentSpec:
           \    import tensorflow as tf\n    import numpy as np\n    import os\n  \
           \  # Load preprocessed data\n    X_train = np.load(os.path.join(dataset.path,\
           \ 'X_train.npy'))\n    y_train = np.load(os.path.join(dataset.path, 'y_train.npy'))\n\
-          \n    # Define a simple neural network model\n    model = tf.keras.Sequential([\n\
-          \        tf.keras.layers.Dense(10, activation='relu', input_shape=(X_train.shape[1],)),\n\
-          \        tf.keras.layers.Dense(10, activation='relu'),\n        tf.keras.layers.Dense(3,\
-          \ activation='softmax')  # 3 classes for Iris dataset\n    ])\n\n    # Compile\
-          \ the model\n    model.compile(optimizer='adam',\n                  loss='sparse_categorical_crossentropy',\n\
-          \                  metrics=['accuracy'])\n\n    # Train the model\n    model.fit(X_train,\
+          \    # demo something new  here\n    # Define a simple neural network model\n\
+          \    model = tf.keras.Sequential([\n        tf.keras.layers.Dense(10, activation='relu',\
+          \ input_shape=(X_train.shape[1],)),\n        tf.keras.layers.Dense(10, activation='relu'),\n\
+          \        tf.keras.layers.Dense(3, activation='softmax')  # 3 classes for\
+          \ Iris dataset\n    ])\n\n    # Compile the model\n    model.compile(optimizer='adam',\n\
+          \                  loss='sparse_categorical_crossentropy',\n           \
+          \       metrics=['accuracy'])\n\n    # Train the model\n    model.fit(X_train,\
           \ y_train, epochs=10, batch_size=8)\n\n    # Create directory for saving\
           \ the model\n    os.makedirs(output_model.path, exist_ok=True)\n\n    #\
           \ Save the trained model\n    model.save(os.path.join(output_model.path,\
