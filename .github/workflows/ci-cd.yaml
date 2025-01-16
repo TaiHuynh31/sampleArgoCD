@@ -27,7 +27,6 @@ jobs:
 
       - name: Compile pipeline
         run: |
-          cd pipeline
           python pipeline.py
 
       - name: Debug files
