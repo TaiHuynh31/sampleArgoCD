@@ -22,12 +22,12 @@ spec:
     - name: preprocess
       container:
         image: taihuynh31/preprocess:latest
-        args: ["--output_dataset", "/data/output"]
+        args: ["--output_dataset", "/data"]
     - name: train
       container:
         image: taihuynh31/train:latest
-        args: ["--dataset", "/data/output", "--output_model", "/model/output"]
+        args: ["--dataset", "/data", "--output_model", "/model"]
     - name: evaluate
       container:
         image: taihuynh31/evaluate:latest
-        args: ["--dataset", "/data/output", "--model", "/model/output", "--metrics", "/metrics/output"]
+        args: ["--dataset", "/data", "--model", "/model", "--metrics", "/metrics"]
