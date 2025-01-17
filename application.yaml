@@ -7,11 +7,11 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'
-    path: '.'  # Đường dẫn tới thư mục gốc của project
+    path: '.'
     targetRevision: HEAD
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: argo
+    namespace: kubeflow
   syncPolicy:
     automated:
       prune: true
