@@ -41,6 +41,7 @@ spec:
         - name: shared-data
           emptyDir: {}
         - name: shared-model
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: model-pvc
         - name: shared-metrics
           emptyDir: {}
