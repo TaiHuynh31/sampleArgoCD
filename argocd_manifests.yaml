@@ -5,15 +5,15 @@ metadata:
   namespace: argocd
 spec:
   source:
-    repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'  # Replace with your Git repository URL
-    path: '.'                                                  # Replace with the correct path to your app configuration
-    targetRevision: HEAD                                       # Specify the branch or commit
+    repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'
+    path: '.'
+    targetRevision: HEAD
   destination:
-    server: 'https://kubernetes.default.svc'                  # Kubernetes API server
-    namespace: kubeflow                                        # Namespace to deploy
-  project: default                                             # ArgoCD project name
+    server: 'https://kubernetes.default.svc'
+    namespace: kubeflow
+  project: default
   syncPolicy:
     automated:
-      prune: true                                              # Automatically delete resources no longer in Git
-      selfHeal: true                                           # Automatically sync out-of-sync resources
+      prune: true
+      selfHeal: true
 
