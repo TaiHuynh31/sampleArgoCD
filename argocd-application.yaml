@@ -1,9 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ai-pipeline
+  name: iris-pipeline
   namespace: argocd
 spec:
+  project: default
   source:
     repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'
     path: '.'
@@ -11,9 +12,7 @@ spec:
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kubeflow
-  project: default
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-
