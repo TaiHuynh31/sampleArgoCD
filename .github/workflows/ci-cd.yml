@@ -25,4 +25,4 @@ jobs:
         run: |
           cd components/${{ matrix.component }}
           docker build -t taihuynh31/${{ matrix.component }}:latest .
-          docker push taihuynh31/${{ matrix.component }}:latest
+          docker push taihuynh31/${{ matrix.component }}:latest 
