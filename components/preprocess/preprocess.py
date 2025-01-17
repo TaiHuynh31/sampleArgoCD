@@ -12,6 +12,5 @@ def preprocess_data(output_path: str):
     np.save(os.path.join(output_path, "y_train.npy"), y_train)
     np.save(os.path.join(output_path, "X_test.npy"), X_test)
     np.save(os.path.join(output_path, "y_test.npy"), y_test)
-
 if __name__ == "__main__":
     preprocess_data("/data")

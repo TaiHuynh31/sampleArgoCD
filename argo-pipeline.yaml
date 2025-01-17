@@ -5,6 +5,10 @@ metadata:
   namespace: kubeflow
 spec:
   entrypoint: iris-pipeline
+  volumes:
+    - name: data-volume
+      emptyDir: {}
+
   templates:
     - name: iris-pipeline
       dag:
@@ -23,11 +27,20 @@ spec:
       container:
         image: taihuynh31/preprocess:latest
         args: ["--output_dataset", "/data"]
+        volumeMounts:
+          - name: data-volume
+            mountPath: /data
     - name: train
       container:
         image: taihuynh31/train:latest
         args: ["--dataset", "/data", "--output_model", "/model"]
+        volumeMounts:
+          - name: data-volume
+            mountPath: /data
     - name: evaluate
       container:
         image: taihuynh31/evaluate:latest
         args: ["--dataset", "/data", "--model", "/model", "--metrics", "/metrics"]
+        volumeMounts:
+          - name: data-volume
+            mountPath: /data
