@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: iris-training-pipeline-
+  namespace: kubeflow
+spec:
+  entrypoint: iris-pipeline
+  templates:
+    - name: iris-pipeline
+      dag:
+        tasks:
+          - name: preprocess
+            template: preprocess
+          - name: train
+            template: train
+            dependencies:
+              - preprocess
+          - name: evaluate
+            template: evaluate
+            dependencies:
+              - train
+    - name: preprocess
+      container:
+        image: taihuynh31/preprocess:latest
+        args: ["--output_dataset", "/data/output"]
+    - name: train
+      container:
+        image: taihuynh31/train:latest
+        args: ["--dataset", "/data/output", "--output_model", "/model/output"]
+    - name: evaluate
+      container:
+        image: taihuynh31/evaluate:latest
+        args: ["--dataset", "/data/output", "--model", "/model/output", "--metrics", "/metrics/output"]

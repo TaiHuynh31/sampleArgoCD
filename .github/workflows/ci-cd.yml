@@ -30,26 +30,3 @@ jobs:
           docker build -t taihuynh31/${{ matrix.component }}:latest .
           docker push taihuynh31/${{ matrix.component }}:latest 
 
-  update-pipeline:
-    runs-on: ubuntu-latest
-    needs: build-and-push  # Ensures this job runs only after 'build-and-push' is complete
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Step 2: Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: pip install kfp
-
-      # Step 3: Generate pipeline YAML
-      - name: Generate Pipeline YAML
-        run: |
-          echo "Compiling pipeline..."
-          python iris_pipeline.py
-          echo "Pipeline compiled successfully."
