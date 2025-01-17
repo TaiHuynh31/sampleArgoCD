@@ -7,73 +7,12 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'
-    path: '.'
+    path: '.'  # Đường dẫn tới thư mục gốc của project
     targetRevision: HEAD
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: kubeflow
+    namespace: argo
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-  metadata:
-    annotations:
-      argocd.argoproj.io/sync-wave: "0"  # Run this first
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: kubeflow
-  name: argo-workflow-role
-rules:
-  - apiGroups: ["argoproj.io"]
-    resources: ["workflowtaskresults"]
-    verbs: ["create", "get", "list", "watch", "delete"]
----
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
-metadata:
-  name: iris-training-pipeline
-  namespace: kubeflow
-spec:
-  entrypoint: iris-pipeline
-  templates:
-    - name: iris-pipeline
-      dag:
-        tasks:
-          - name: preprocess
-            template: preprocess
-          - name: train
-            template: train
-            dependencies:
-              - preprocess
-          - name: evaluate
-            template: evaluate
-            dependencies:
-              - train
-    - name: preprocess
-      container:
-        image: taihuynh31/preprocess:latest
-        args: ["--output_dataset", "/data"]
-    - name: train
-      container:
-        image: taihuynh31/train:latest
-        args: ["--dataset", "/data", "--output_model", "/model"]
-    - name: evaluate
-      container:
-        image: taihuynh31/evaluate:latest
-        args: ["--dataset", "/data", "--model", "/model", "--metrics", "/metrics"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: argo-workflow-rolebinding
-  namespace: kubeflow
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: kubeflow
-roleRef:
-  kind: Role
-  name: argo-workflow-role
-  apiGroup: rbac.authorization.k8s.io
