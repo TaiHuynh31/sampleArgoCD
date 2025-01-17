@@ -45,3 +45,6 @@ spec:
             claimName: model-pvc
         - name: shared-metrics
           emptyDir: {}
+
+
+          
