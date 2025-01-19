@@ -1,6 +1,9 @@
 import tensorflow as tf
 import numpy as np
 import os
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Starting preprocessing...")
 
 def train_model(dataset_path: str, model_output_path: str):
     X_train = np.load(os.path.join(dataset_path, "X_train.npy"))

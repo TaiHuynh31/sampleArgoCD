@@ -1,5 +1,10 @@
-FROM python:3.10
+FROM python:3.9-slim
+
 WORKDIR /app
-COPY train.py /app
-RUN pip install tensorflow numpy kfp
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY train.py .
+
 ENTRYPOINT ["python", "train.py"]

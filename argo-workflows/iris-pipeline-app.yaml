@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/TaiHuynh31/sampleArgoCD.git'
-    path: '.'
+    path: 'argo-workflows'
     targetRevision: HEAD
   destination:
     server: 'https://kubernetes.default.svc'

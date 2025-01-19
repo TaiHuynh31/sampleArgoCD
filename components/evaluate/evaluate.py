@@ -3,6 +3,9 @@ import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import os
 import json
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Starting preprocessing...")
 
 def evaluate_model(dataset_path: str, model_path: str, metrics_output_path: str):
     X_test = np.load(os.path.join(dataset_path, "X_test.npy"))

@@ -1,5 +1,10 @@
-FROM python:3.10
+FROM python:3.9-slim
+
 WORKDIR /app
-COPY preprocess.py /app
-RUN pip install scikit-learn numpy kfp
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY preprocess.py .
+
 ENTRYPOINT ["python", "preprocess.py"]

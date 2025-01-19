@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: iris-pipeline
+spec:
+  entrypoint: main
+  volumes:
+    - name: shared-data
+      emptyDir: {}
+
+  templates:
+    - name: main
+      steps:
+        - - name: preprocess
+            template: preprocess
+        - - name: train
+            template: train
+        - - name: evaluate
+            template: evaluate
+
+    - name: preprocess
+      container:
+        image: taihuynh31/preprocess:latest
+        volumeMounts:
+          - name: shared-data
+            mountPath: /data
+
+    - name: train
+      container:
+        image: taihuynh31/train:latest
+        volumeMounts:
+          - name: shared-data
+            mountPath: /data
+          - name: shared-data
+            mountPath: /model
+
+    - name: evaluate
+      container:
+        image: taihuynh31/evaluate:latest
+        volumeMounts:
+          - name: shared-data
+            mountPath: /data
+          - name: shared-data
+            mountPath: /model
+          - name: shared-data
+            mountPath: /metrics
