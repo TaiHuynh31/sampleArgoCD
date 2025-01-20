@@ -6,6 +6,10 @@ logging.basicConfig(level=logging.INFO)
 logging.info("Starting preprocessing...")
 
 def train_model(dataset_path: str, model_output_path: str):
+    X_train_path = os.path.join(dataset_path, "X_train.npy")
+    if not os.path.exists(X_train_path):
+        raise FileNotFoundError(
+            f"Preprocessed data not found at {X_train_path}. Ensure the preprocessing step completed successfully.")
     X_train = np.load(os.path.join(dataset_path, "X_train.npy"))
     y_train = np.load(os.path.join(dataset_path, "y_train.npy"))
     model = tf.keras.Sequential([
