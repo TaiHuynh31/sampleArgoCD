@@ -17,7 +17,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: argo
+    namespace: argocd  # Ensure this is correct
 roleRef:
   kind: ClusterRole
   name: argo-workflow-role
