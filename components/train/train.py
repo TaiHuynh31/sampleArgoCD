@@ -6,12 +6,12 @@ logging.basicConfig(level=logging.INFO)
 logging.info("Starting preprocessing...")
 
 def train_model(dataset_path: str, model_output_path: str):
-    X_train_path = os.path.join(dataset_path, "X_train.npy")
+    X_train_path = os.path.join(dataset_path, "X_train.csv")
     if not os.path.exists(X_train_path):
         raise FileNotFoundError(
             f"Preprocessed data not found at {X_train_path}. Ensure the preprocessing step completed successfully.")
-    X_train = np.load(os.path.join(dataset_path, "X_train.npy"))
-    y_train = np.load(os.path.join(dataset_path, "y_train.npy"))
+    X_train = np.load(os.path.join(dataset_path, "X_train.csv"))
+    y_train = np.load(os.path.join(dataset_path, "y_train.csv"))
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(10, activation='relu', input_shape=(X_train.shape[1],)),
         tf.keras.layers.Dense(10, activation='relu'),

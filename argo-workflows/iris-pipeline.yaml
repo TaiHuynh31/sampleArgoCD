@@ -24,6 +24,14 @@ spec:
         volumeMounts:
           - name: shared-data
             mountPath: /data
+    - name: debug-data
+      container:
+        image: alpine:latest
+        command: [ sh, -c ]
+        args: [ "ls -l /data" ]
+        volumeMounts:
+          - name: shared-data
+            mountPath: /data
 
     - name: train
       container:

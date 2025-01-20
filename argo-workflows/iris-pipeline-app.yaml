@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: iris-pipeline
+  name: iris-pipeline-demo
   namespace: argocd
 spec:
   project: default
