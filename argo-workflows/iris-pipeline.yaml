@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: iris-pipeline
+  generateName: iris-pipeline-
 spec:
   entrypoint: main
   volumes:
@@ -13,19 +13,40 @@ spec:
       steps:
         - - name: preprocess
             template: preprocess
+        - - name: check-preprocess
+            template: check-preprocess
+            dependencies: [preprocess]
         - - name: train
             template: train
+            dependencies: [check-preprocess]
         - - name: evaluate
             template: evaluate
+            dependencies: [train]
 
     - name: preprocess
+      retryStrategy:
+        limit: 3
       container:
         image: taihuynh31/preprocess:latest
         volumeMounts:
           - name: shared-data
             mountPath: /data
+        command: ["python", "/app/preprocess.py"]
+
+    - name: check-preprocess
+      script:
+        image: python:3.9
+        command: [python]
+        source: |
+          import os
+          if not os.path.exists("/data/X_train.npy"):
+              raise FileNotFoundError("Preprocessed data not found. Preprocess step likely failed.")
 
     - name: train
+      inputs:
+        parameters:
+          - name: dataset-path
+          - name: model-output-path
       container:
         image: taihuynh31/train:latest
         volumeMounts:
@@ -33,8 +54,15 @@ spec:
             mountPath: /data
           - name: shared-data
             mountPath: /model
+        command: ["python", "/app/train.py"]
+        args: ["{{inputs.parameters.dataset-path}}", "{{inputs.parameters.model-output-path}}"]
 
     - name: evaluate
+      inputs:
+        parameters:
+          - name: dataset-path
+          - name: model-path
+          - name: metrics-output-path
       container:
         image: taihuynh31/evaluate:latest
         volumeMounts:
@@ -44,3 +72,5 @@ spec:
             mountPath: /model
           - name: shared-data
             mountPath: /metrics
+        command: ["python", "/app/evaluate.py"]
+        args: ["{{inputs.parameters.dataset-path}}", "{{inputs.parameters.model-path}}", "{{inputs.parameters.metrics-output-path}}"]
