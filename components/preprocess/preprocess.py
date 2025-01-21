@@ -3,9 +3,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import os
-import logging
-logging.basicConfig(level=logging.INFO)
-logging.info("Starting preprocessing...")
+
 def preprocess_data(output_path: str):
     iris = load_iris()
     X, y = iris.data, iris.target

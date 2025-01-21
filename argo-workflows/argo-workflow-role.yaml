@@ -17,8 +17,34 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: argocd  # Ensure this is correct
+    namespace: argo
 roleRef:
   kind: ClusterRole
   name: argo-workflow-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Role for Pod Patching in the kubeflow namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-patch-role
+  namespace: kubeflow
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["patch"]
+---
+# RoleBinding for Pod Patching in the kubeflow namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-patch-role-binding
+  namespace: kubeflow
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: kubeflow
+roleRef:
+  kind: Role
+  name: pod-patch-role
   apiGroup: rbac.authorization.k8s.io
